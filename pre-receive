@@ -1,0 +1,47 @@
+#!/bin/bash
+ERRORS_FOUND=0
+
+while read COMMIT_START COMMIT_END REFNAME
+do
+  echo "Start: $COMMIT_START"
+  echo "End:   $COMMIT_END"
+  echo "Ref.:  $REFNAME"
+  echo ""
+
+  # changes to branch
+  FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $COMMIT_START $COMMIT_END 2> /dev/null)
+
+  if [ $? -gt 0 ]
+  then
+    # new branch
+    FILES_CHANGED=$(git diff-tree --no-commit-id --name-only -r $COMMIT_END 2> /dev/null)
+
+    if [ $? -gt 0 ]
+    then
+      # probably removing a branch
+      continue
+    fi
+  fi
+
+  echo "Starting PHP Syntax check..."
+
+  for FILE in $FILES_CHANGED
+  do
+    if [ ${FILE: -4} == ".php" ]
+    then
+      git show $COMMIT_END:$FILE | php -l 1> /dev/null
+
+      if [ $? -gt 0 ]
+      then
+        ERRORS_FOUND=$((ERRORS_FOUND + 1))
+      fi
+    fi
+  done
+done
+
+if [ $ERRORS_FOUND -gt 0 ]
+then
+  echo "Not deployed. Syntax errors found"
+
+  exit 1
+fi

@@ -1,0 +1,19 @@
+#!/bin/bash
+TARGET="/www/sitename_123/public"
+GIT_DIR="/www/sitename_123/private/sitename.git"
+BRANCH="master"
+
+while read oldrev newrev ref
+do
+        # only checking out the master (or whatever branch you would like to deploy)
+        if [[ $ref = refs/heads/$BRANCH ]];
+        then
+                echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
+                git --work-tree=$TARGET --git-dir=$GIT_DIR checkout -f
+		echo "Setting file permissions..."
+		chmod -R a=r,a+X,u+w "/www/$(ls /www)/public/"
+		chown $(ls /www | cut -d '_' -f 1):www-data -R "/www/$(ls /www)/public/"
+        else
+                echo "Ref $ref received. Doing nothing: only the ${BRANCH} branch may be deployed on this server."
+        fi
+done
