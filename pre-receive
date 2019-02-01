@@ -33,6 +33,7 @@ do
 
       if [ $? -gt 0 ]
       then
+        echo "in $FILE"
         ERRORS_FOUND=$((ERRORS_FOUND + 1))
       fi
     fi
