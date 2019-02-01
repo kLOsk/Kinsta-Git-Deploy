@@ -1,5 +1,5 @@
 # Kinsta-Git-Deploy
-Git hooks that help deploying a WordPress site via Git to Kinsta.com
+Git hooks that help deploying a WordPress site via Git on Kinsta.com
 
 ## Description
 The **post-receive** hook script is based on Austin Ginders Kinsta deploy script and extended with permission checks for the Kinsta environment.
